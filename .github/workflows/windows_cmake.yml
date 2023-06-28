@@ -1,0 +1,45 @@
+name: Build CMake Libraries
+
+on:
+  workflow_dispatch:
+
+env:
+    LLVM_VER: 16.0.4
+    BRANCH: release/16.x
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@master
+      with:
+        # ninja version to download. Default: 1.10.0
+        version: 1.10.0
+        dest: ${{ github.workspace }}/ninja_bin
+
+    - name: Clone LLVM
+      run: |
+          git clone https://github.com/llvm/llvm-project.git llvm-project-$env:LLVM_VER -b $env:BRANCH
+
+    - name: Configure CMake
+      run: |
+        cd llvm-project-$env:LLVM_VER
+        mkdir build
+        cd build
+        cmake -GNinja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="$env:GITHUB_WORKSPACE/llvm-project-$env:LLVM_VER/install -A x64 -Thost=x64 ..\llvm
+
+    - name: Build
+      run: |
+        cd llvm-project-$env:LLVM_VER/build
+        ninja clang install
+
+    - name: Cache LibClang
+      id: cache-clang
+      uses: actions/cache@v3
+      with:
+        path: llvm-project-env:LLVM_VER/install
+        key: libclang-${{ runner.os }}-${{ github.run_id }}
