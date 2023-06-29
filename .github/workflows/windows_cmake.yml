@@ -30,7 +30,7 @@ jobs:
         cd llvm-project-$env:LLVM_VER
         mkdir build
         cd build
-        cmake -GNinja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$env:GITHUB_WORKSPACE/llvm-project-$env:LLVM_VER/install -A x64 -Thost=x64 ..\llvm
+        cmake -GNinja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$env:GITHUB_WORKSPACE/llvm-project-$env:LLVM_VER/install -Thost=x64 ..\llvm
 
     - name: Build
       run: |
