@@ -59,6 +59,11 @@ fn is_directory(path: String) throws -> bool {
     return stat.has_value() and stat!.is_directory()
 }
 
+fn is_file(path: String) throws -> bool {
+    let stat = fs::stat_silencing_enoent(path)
+    return stat.has_value() and stat!.is_regular_file()
+}
+
 fn mkdir_if_not_present(path: String) throws {
     let stat = fs::stat_silencing_enoent(path)
     if not stat.has_value() or not stat!.is_directory() {
@@ -352,6 +357,15 @@ struct Options {
 
         if options.job_count == 0 {
             options.job_count = os::get_num_cpus()
+        }
+
+        let jakt_path_test = fs::stat_silencing_enoent(path: String::format("{}/bin/jakt", options.build_dir))
+        let jakt_path_test_win = fs::stat_silencing_enoent(path: String::format("{}/bin/jakt.exe", options.build_dir))
+
+        
+
+        if (not jakt_path_test.has_value()) and (not jakt_path_test_win.has_value()) {
+            options.errors.push(String::format("Could not find jakt binary at {}/bin/jakt", options.build_dir))
         }
 
         return options
